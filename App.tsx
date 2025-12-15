@@ -1,28 +1,30 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
-import AuditUpload from './components/AuditUpload';
 import MapViewer from './components/MapViewer';
-import MapAudit from './components/MapAudit';
+import EngineeringHub from './components/EngineeringHub';
 import AdminPortal from './components/AdminPortal';
 import LinemanPortal from './components/LinemanPortal';
 import NewProject from './components/NewProject';
+import AIAssistant from './components/AIAssistant';
 import AuthPage from './components/AuthPage';
 import { ViewState, Notification, NotificationType, Invoice, Transaction, UnitRates, User } from './types';
 import { FileText } from 'lucide-react';
 
 // --- INITIAL STATE ZEROED FOR PRODUCTION ---
-// Removed mocked data from current month to ensure "Zero" state on fresh load.
 const INITIAL_INVOICES: Invoice[] = []; 
 const INITIAL_TRANSACTIONS: Transaction[] = [];
 
-// Default Payment Rates
+// Default Payment Rates (Expanded for new contract model)
 const INITIAL_RATES: UnitRates = {
-    strand: 0.85,
-    fiber: 1.50,
-    overlash: 0.65,
-    anchor: 45.00,
-    snowshoe: 15.00
+    strand: 0.30,
+    fiber: 0.30,
+    overlash: 0.25,
+    anchor: 15.00,
+    snowshoe: 10.00,
+    composite: 0.50,
+    riser: 12.00
 };
 
 const ReportsPlaceholder = () => (
@@ -59,7 +61,8 @@ const App: React.FC = () => {
     // 3. Rates (Taxas)
     const [rates, setRates] = useState<UnitRates>(() => {
         const saved = localStorage.getItem('fs_rates');
-        return saved ? JSON.parse(saved) : INITIAL_RATES;
+        // Merge with initial in case of new fields added to type
+        return saved ? { ...INITIAL_RATES, ...JSON.parse(saved) } : INITIAL_RATES;
     });
 
     // --- EFFECTS TO SAVE DATA ---
@@ -102,7 +105,8 @@ const App: React.FC = () => {
         const footageTotal = (newInvoiceData.totalFootage || 0) * rates.fiber; 
         const itemsTotal = 
             ((newInvoiceData.items?.anchors || 0) * rates.anchor) +
-            ((newInvoiceData.items?.snowshoes || 0) * rates.snowshoe);
+            ((newInvoiceData.items?.snowshoes || 0) * rates.snowshoe) +
+            ((newInvoiceData.items?.risers || 0) * rates.riser);
 
         const invoice: Invoice = {
             id: newId,
@@ -135,12 +139,12 @@ const App: React.FC = () => {
 
     const handleUpdateRates = (newRates: UnitRates) => {
         setRates(newRates);
-        addNotification('Configuração Atualizada', 'Novas taxas salvas no sistema.', 'success');
+        addNotification('Contrato Atualizado', 'Novas taxas salvas no sistema e sincronizadas com a IA.', 'success');
     };
 
     const handleCreateProject = (data: any) => {
         // Here we would actually save the project to DB/State
-        addNotification('Projeto Criado', `Ordem de Serviço ${data.routeId} iniciada com sucesso.`, 'success');
+        addNotification('Projeto Criado', `Ordem de Serviço ${data.routeId} iniciada com sucesso. Materiais definidos.`, 'success');
         setCurrentView(ViewState.DASHBOARD);
     };
 
@@ -182,8 +186,8 @@ const App: React.FC = () => {
                         rates={rates}
                     />
                 );
-            case ViewState.AUDIT:
-                return <AuditUpload onAnalysisComplete={(result) => {
+            case ViewState.ENGINEERING: // Unified View
+                return <EngineeringHub rates={rates} onAnalysisComplete={(result) => {
                     if (result.status === 'CRITICAL') {
                         addNotification("Auditoria: Falha Crítica", `Item crítico detectado na imagem. Score: ${result.complianceScore}`, "critical");
                     } else if (result.status === 'DIVERGENT') {
@@ -192,14 +196,12 @@ const App: React.FC = () => {
                         addNotification("Auditoria: Sucesso", "Instalação aprovada com sucesso.", "success");
                     }
                 }} />;
-            case ViewState.MAP_AUDIT:
-                return <MapAudit />;
             case ViewState.MAPS:
                 return <MapViewer />;
-            case ViewState.REPORTS:
-                return <ReportsPlaceholder />;
             case ViewState.NEW_PROJECT:
-                return <NewProject onCancel={() => setCurrentView(ViewState.DASHBOARD)} onSubmit={handleCreateProject} />;
+                return <NewProject onCancel={() => setCurrentView(ViewState.DASHBOARD)} onSubmit={handleCreateProject} rates={rates} />;
+            case ViewState.AI_ASSISTANT:
+                return <AIAssistant />;
             default:
                 return <Dashboard onNavigate={setCurrentView} invoices={invoices} transactions={transactions} />;
         }

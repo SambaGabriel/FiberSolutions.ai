@@ -28,7 +28,7 @@ export interface AuditResult {
 }
 
 export interface MapAnalysisResult {
-    totalCableLength: number; // em pés ou metros
+    totalCableLength: number; // em pés
     cableType: string; // ex: 48ct, 96ct
     spanCount: number;
     equipmentCounts: { name: string; quantity: number }[];
@@ -37,11 +37,13 @@ export interface MapAnalysisResult {
         estimatedMaterialCost: number;
         potentialSavings: number; // Diferença encontrada
     };
-    detectedAnomalies: string[]; // ex: "Span de 500' parece excessivo para esta zona"
+    // Lista de materiais para Warehouse (Pick List)
+    materialList: { item: string; quantity: number; unit: string }[]; 
+    detectedAnomalies: string[]; 
     spliceRecommendation?: {
-        location: string; // ex: "Poste #452 (Fim de linha)"
-        reason: string; // ex: "Melhor acesso e possui slack loop existente"
-        action: string; // ex: "Puxar para poste anterior"
+        location: string; 
+        reason: string; 
+        action: string; 
     };
 }
 
@@ -51,13 +53,8 @@ export interface UnitRates {
     overlash: number;  // Preço por pé
     anchor: number;    // Preço por unidade
     snowshoe: number;  // Preço por unidade
-}
-
-export interface CrewMetric {
-    name: string;
-    spansCompleted: number;
-    efficiency: number; // Percentage
-    revenue: number;
+    composite: number; // Preço por unidade (novo)
+    riser: number;     // Preço por unidade
 }
 
 export interface Invoice {
@@ -90,13 +87,12 @@ export interface Transaction {
 
 export enum ViewState {
     DASHBOARD = 'DASHBOARD',
-    AUDIT = 'AUDIT',         // IA Visual (Fotos)
-    MAP_AUDIT = 'MAP_AUDIT', // IA Mapas (Engenharia)
-    ADMIN = 'ADMIN',         // Portal do Dono
-    LINEMAN = 'LINEMAN',     // Portal do Técnico
+    ENGINEERING = 'ENGINEERING', // Unificada (Fotos + Mapas)
+    ADMIN = 'ADMIN',             // Portal do Dono
+    LINEMAN = 'LINEMAN',         // Portal do Técnico
     MAPS = 'MAPS',
-    REPORTS = 'REPORTS',
-    NEW_PROJECT = 'NEW_PROJECT' // Added
+    NEW_PROJECT = 'NEW_PROJECT',
+    AI_ASSISTANT = 'AI_ASSISTANT' // New: Chatbot, Search, Maps, Thinking
 }
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'critical';

@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { DollarSign, CheckCircle, AlertOctagon, FileText, TrendingUp, Search, Filter, CreditCard, X, ShieldCheck, Zap, Settings, Save } from 'lucide-react';
+import { DollarSign, CheckCircle, AlertOctagon, FileText, TrendingUp, Search, Filter, CreditCard, X, ShieldCheck, Zap, Settings, Save, ScrollText } from 'lucide-react';
 import { Invoice, Transaction, UnitRates } from '../types';
 
 interface AdminPortalProps {
@@ -120,7 +121,7 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ invoices, onPayInvoice, rates
                         onClick={() => setActiveTab('rates')}
                         className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'rates' ? 'bg-fs-brand text-white shadow-glow' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                     >
-                        <Settings className="w-4 h-4" /> Configuração de Tarifas
+                        <ScrollText className="w-4 h-4" /> Contrato & Tarifas
                     </button>
                 </div>
             </div>
@@ -184,9 +185,6 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ invoices, onPayInvoice, rates
                                         className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-fs-brand/50 transition-colors"
                                     />
                                 </div>
-                                <button className="p-2.5 bg-[#02040a] rounded-xl border border-white/10 hover:border-fs-brand/50 hover:text-white text-slate-400 transition-all">
-                                    <Filter className="w-4 h-4" />
-                                </button>
                             </div>
                         </div>
 
@@ -258,109 +256,161 @@ const AdminPortal: React.FC<AdminPortalProps> = ({ invoices, onPayInvoice, rates
                     </div>
                 </>
             ) : (
-                /* RATES CONFIGURATION TAB */
-                <div className="max-w-2xl mx-auto space-y-6">
-                    <div className="text-center mb-8">
-                        <h3 className="text-2xl font-bold text-white">Tabela de Preços (Unit Rates)</h3>
-                        <p className="text-slate-400 text-sm">Defina o valor pago por pé ou por unidade para os Crews.</p>
+                /* RATES / CONTRACT TAB */
+                <div className="max-w-4xl mx-auto space-y-6">
+                    <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
+                        <div>
+                            <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+                                <ScrollText className="w-6 h-6 text-fs-brand" /> Contrato Digital
+                            </h3>
+                            <p className="text-slate-400 text-sm mt-1">
+                                Defina os valores unitários (Unit Rates). A IA usará estes dados para calcular orçamentos.
+                            </p>
+                        </div>
+                        <div className="px-4 py-2 bg-fs-brand/10 border border-fs-brand/20 rounded-lg text-fs-brand text-xs font-bold uppercase tracking-wide">
+                            Contrato Ativo
+                        </div>
                     </div>
 
-                    <div className="glass-panel p-8 rounded-3xl space-y-6 border border-white/10">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Construction Rates */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* AERIAL CONSTRUCTION */}
+                        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
+                            <h4 className="text-xs font-extrabold text-white uppercase tracking-widest border-b border-white/10 pb-2 flex justify-between">
+                                <span>Construção Aérea</span>
+                                <span className="text-slate-500">Valor p/ Pé (ft)</span>
+                            </h4>
+                            
                             <div className="space-y-4">
-                                <h4 className="text-xs font-extrabold text-fs-brand uppercase tracking-widest border-b border-white/10 pb-2 mb-4">Construção (por pé)</h4>
-                                
                                 <div>
-                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block">Strand (Cordoalha)</label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 flex justify-between">
+                                        Strand (Cordoalha)
+                                        <span className="text-emerald-400 font-mono text-[10px]">Aerial</span>
+                                    </label>
+                                    <div className="relative group">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-fs-brand transition-colors" />
                                         <input 
                                             type="number" step="0.01" 
                                             value={tempRates.strand}
                                             onChange={e => handleRateChange('strand', e.target.value)}
-                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors"
+                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors text-lg font-bold"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block">Fibra Óptica</label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 flex justify-between">
+                                        Fibra Óptica (Lashing)
+                                        <span className="text-emerald-400 font-mono text-[10px]">Aerial</span>
+                                    </label>
+                                    <div className="relative group">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-fs-brand transition-colors" />
                                         <input 
                                             type="number" step="0.01" 
                                             value={tempRates.fiber}
                                             onChange={e => handleRateChange('fiber', e.target.value)}
-                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors"
+                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors text-lg font-bold"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block">Overlash</label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 flex justify-between">
+                                        Overlash
+                                        <span className="text-emerald-400 font-mono text-[10px]">Aerial</span>
+                                    </label>
+                                    <div className="relative group">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-fs-brand transition-colors" />
                                         <input 
                                             type="number" step="0.01" 
                                             value={tempRates.overlash}
                                             onChange={e => handleRateChange('overlash', e.target.value)}
-                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors"
+                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors text-lg font-bold"
                                         />
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Asset Rates */}
-                            <div className="space-y-4">
-                                <h4 className="text-xs font-extrabold text-white uppercase tracking-widest border-b border-white/10 pb-2 mb-4">Ativos (Unidade)</h4>
-                                
+                        {/* ASSETS & HARDWARE */}
+                        <div className="glass-panel p-6 rounded-2xl border border-white/10 space-y-5">
+                            <h4 className="text-xs font-extrabold text-white uppercase tracking-widest border-b border-white/10 pb-2 flex justify-between">
+                                <span>Hardware & Ativos</span>
+                                <span className="text-slate-500">Valor Unitário (un)</span>
+                            </h4>
+                            
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block">Âncora (Anchor/Guy)</label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block truncate">Âncora (Down Guy)</label>
+                                    <div className="relative group">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-fs-brand transition-colors" />
                                         <input 
                                             type="number" step="1.00" 
                                             value={tempRates.anchor}
                                             onChange={e => handleRateChange('anchor', e.target.value)}
-                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors"
+                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-2 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors font-bold"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block">Snowshoe (Reserva)</label>
-                                    <div className="relative">
-                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block truncate">Snowshoe (Reserva)</label>
+                                    <div className="relative group">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-fs-brand transition-colors" />
                                         <input 
                                             type="number" step="1.00" 
                                             value={tempRates.snowshoe}
                                             onChange={e => handleRateChange('snowshoe', e.target.value)}
-                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors"
+                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-2 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors font-bold"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block truncate">Composite (Make Ready)</label>
+                                    <div className="relative group">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-fs-brand transition-colors" />
+                                        <input 
+                                            type="number" step="0.50" 
+                                            value={tempRates.composite}
+                                            onChange={e => handleRateChange('composite', e.target.value)}
+                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-2 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors font-bold"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs text-slate-400 font-bold uppercase mb-1 block truncate">Riser / U-Guard</label>
+                                    <div className="relative group">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-fs-brand transition-colors" />
+                                        <input 
+                                            type="number" step="1.00" 
+                                            value={tempRates.riser}
+                                            onChange={e => handleRateChange('riser', e.target.value)}
+                                            className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-9 pr-2 py-3 text-white focus:border-fs-brand outline-none font-mono transition-colors font-bold"
                                         />
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="pt-6 border-t border-white/5 flex justify-end">
-                            <button 
-                                onClick={saveRates}
-                                className={`
-                                    px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all
-                                    ${isSaved 
-                                        ? 'bg-emerald-600 text-white cursor-default' 
-                                        : 'bg-fs-brand hover:bg-fs-brandHover text-white shadow-glow'
-                                    }
-                                `}
-                            >
-                                {isSaved ? (
-                                    <><CheckCircle className="w-5 h-5" /> Salvo com Sucesso</>
-                                ) : (
-                                    <><Save className="w-5 h-5" /> Salvar Alterações</>
-                                )}
-                            </button>
-                        </div>
+                    <div className="sticky bottom-4 z-20 flex justify-end">
+                        <button 
+                            onClick={saveRates}
+                            className={`
+                                px-8 py-4 rounded-xl font-bold flex items-center gap-3 transition-all shadow-2xl transform hover:-translate-y-1
+                                ${isSaved 
+                                    ? 'bg-emerald-600 text-white cursor-default scale-105' 
+                                    : 'bg-action-gradient text-white shadow-glow'
+                                }
+                            `}
+                        >
+                            {isSaved ? (
+                                <><CheckCircle className="w-5 h-5" /> Taxas Salvas & Sincronizadas</>
+                            ) : (
+                                <><Save className="w-5 h-5" /> Salvar Alterações de Contrato</>
+                            )}
+                        </button>
                     </div>
                 </div>
             )}

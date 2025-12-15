@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Layers, AlertCircle, Maximize2, Globe, Mountain, Satellite, UploadCloud, Box, Eye, Crosshair, Zap, FileJson, CheckCircle2, LocateFixed, RefreshCw, Navigation, Tag, Info, Menu, Camera, Share2, Trash2, Download, Check, Settings, Image as ImageIcon, Copy, Map as MapIcon, X } from 'lucide-react';
 import FiberLoader from './FiberLoader';
@@ -371,7 +372,7 @@ const MapViewer: React.FC = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                        Mapa de Campo
+                        Mapas
                         {hasFile && <span className="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" /> Online
                         </span>}

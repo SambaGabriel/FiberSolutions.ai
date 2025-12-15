@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { ViewState, Notification } from '../types';
-import { LayoutDashboard, Camera, Map as MapIcon, Menu, X, Bell, CheckCheck, AlertTriangle, Info, AlertCircle, ChevronRight, Calculator, HardHat, Building2, ArrowLeft, Zap } from 'lucide-react';
+import { LayoutDashboard, Map as MapIcon, Menu, X, Bell, CheckCheck, AlertTriangle, Info, AlertCircle, ChevronRight, Calculator, HardHat, Building2, ArrowLeft, Zap, Bot } from 'lucide-react';
 import Logo from './Logo';
 
 interface LayoutProps {
@@ -32,9 +33,9 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
         { id: ViewState.DASHBOARD, label: 'Visão Geral', icon: LayoutDashboard },
         { id: ViewState.LINEMAN, label: 'Portal Lineman', icon: HardHat },
         { id: ViewState.ADMIN, label: 'Gestão & Financeiro', icon: Building2 },
-        { id: ViewState.AUDIT, label: 'Auditoria Visual', icon: Camera },
-        { id: ViewState.MAP_AUDIT, label: 'Auditoria BoQ', icon: Calculator },
-        { id: ViewState.MAPS, label: 'Mapas de Campo', icon: MapIcon },
+        { id: ViewState.ENGINEERING, label: 'Engenharia & Qualidade', icon: Calculator }, 
+        { id: ViewState.MAPS, label: 'Mapas', icon: MapIcon },
+        { id: ViewState.AI_ASSISTANT, label: 'AI Assistant', icon: Bot },
     ];
 
     const getIconForType = (type: string) => {
@@ -52,7 +53,7 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
                 <Logo className="w-12 h-12 mb-2" showText={true} />
             </div>
             
-            <nav className="flex-1 px-4 space-y-2 mt-2">
+            <nav className="flex-1 px-4 space-y-2 mt-2 overflow-y-auto">
                 <p className="px-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-3 opacity-60">Centro de Comando</p>
                 {navItems.map((item) => (
                     <button

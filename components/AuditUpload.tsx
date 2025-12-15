@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Camera, UploadCloud, Check, X, AlertTriangle, Play, Sparkles, ScanLine, AlertCircle, ArrowRight } from 'lucide-react';
 import { analyzeConstructionImage } from '../services/geminiService';
@@ -60,7 +61,7 @@ const AuditUpload: React.FC<AuditUploadProps> = ({ onAnalysisComplete }) => {
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-white/5 pb-8">
                 <div className="space-y-4 max-w-2xl">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fs-brand/10 border border-fs-brand/20 text-fs-brand text-[10px] font-bold uppercase tracking-widest">
-                        <Sparkles className="w-3 h-3" /> Gemini 2.5 Vision Engine
+                        <Sparkles className="w-3 h-3" /> Gemini 3.0 Pro Vision
                     </div>
                     <h2 className="text-4xl md:text-6xl font-extrabold text-white tracking-tighter">Auditoria Visual</h2>
                     <p className="text-slate-400 text-lg font-medium leading-relaxed">
@@ -132,7 +133,7 @@ const AuditUpload: React.FC<AuditUploadProps> = ({ onAnalysisComplete }) => {
                         `}
                     >
                         {!isAnalyzing && <Sparkles className="w-5 h-5 fill-white" />}
-                        {isAnalyzing ? 'Lashing...' : 'Executar Auditoria IA'}
+                        {isAnalyzing ? 'Analisando...' : 'Executar Auditoria IA'}
                         {!isAnalyzing && <ArrowRight className="w-5 h-5" />}
                     </button>
                 </div>

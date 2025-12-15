@@ -1,8 +1,8 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
-import { AuditResult, AuditStatus, MapAnalysisResult } from "../types";
+import { AuditResult, AuditStatus, MapAnalysisResult, UnitRates } from "../types";
 
 // Initialize Gemini Client
-// Note: process.env.API_KEY is injected by the runtime environment.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const AUDIT_SYSTEM_INSTRUCTION = `
@@ -11,33 +11,31 @@ Seu objetivo é analisar fotos de campo e identificar componentes (postes, cabos
 Responda sempre em JSON estruturado.
 `;
 
-const MAP_SYSTEM_INSTRUCTION = `
+const getMapSystemInstruction = (rates?: UnitRates) => `
 Você é um Especialista Sênior em Engenharia OSP e Geoespacial (GIS).
 Sua missão é analisar projetos de fibra óptica vindos de Mapas (Imagem/PDF) ou arquivos Google Earth (KML/XML).
 
-MODO DE ANÁLISE GEOSPACIAL (KML/KMZ):
-Se receber texto XML/KML:
-1. Analise as tags <Coordinates>. Calcule a distância real geoespacial entre os pontos (Haversine).
-2. Verifique a topografia implícita (se houver dados de altitude).
-3. Identifique <Placemark> como ativos (Postes, Caixas).
-4. Identifique <LineString> como cabos.
+TABELA DE PREÇOS DO CONTRATO (UNIT RATES) OBRIGATÓRIA:
+Use EXATAMENTE estes valores para calcular o 'estimatedLaborCost':
+${rates ? JSON.stringify(rates, null, 2) : "Use standard US averages."}
 
-MODO DE ANÁLISE VISUAL (IMAGEM/PDF):
-1. **SPLICE POINTS & OTIMIZAÇÃO:** Identifique caixas, analise a topologia visual (esquinas, finais de rua).
-2. **LEITURA DE ATIVOS:** Conte EXATAMENTE a quantidade de:
-   - "Snowshoes" (Reservas técnicas de cabo)
-   - "Anchors" (Âncoras de solo / Guy wires)
-   - "Coils" (Rolos de cabo em poste)
-   - "Risers" (Descidas de cabo com proteção/U-Guard)
-3. **METRAGEM:** Some os valores numéricos dos spans visualizados ou estime baseado na escala.
+CÁLCULO FINANCEIRO:
+1. Multiplique a metragem total de cabos (Strand/Fiber) pelas taxas de 'strand' ou 'fiber'.
+2. Multiplique a contagem de ativos (Anchors, Snowshoes, etc) pelas suas taxas unitárias.
+3. Some tudo em 'estimatedLaborCost'.
 
-OBJETIVO FINAL:
-Gere um Bill of Quantities (BoQ) preciso e recomende o melhor ponto de fusão (Splice Optimization).
+OBJETIVOS:
+1. **Contagem Precisa:** Conte Snowshoes, Âncoras, Risers e Coils.
+2. **Warehouse Pick List:** Gere uma lista de materiais clara para o Lineman retirar no armazém (ex: "5000ft Fiber", "12 Anchors").
+3. **Análise Técnica:** Identifique anomalias ou oportunidades de otimização de fusão.
 `;
+
+// --- EXISTING AUDIT FUNCTIONS ---
 
 export const analyzeConstructionImage = async (base64Image: string): Promise<AuditResult> => {
     try {
-        const model = 'gemini-2.5-flash'; 
+        // Updated to gemini-3-pro-preview as requested for "Analyze images" feature
+        const model = 'gemini-3-pro-preview'; 
 
         const response = await ai.models.generateContent({
             model: model,
@@ -74,7 +72,6 @@ export const analyzeConstructionImage = async (base64Image: string): Promise<Aud
         const jsonText = response.text || "{}";
         const result = JSON.parse(jsonText);
 
-        // Map string status to Enum
         let mappedStatus = AuditStatus.PENDING;
         if (result.status === 'COMPLIANT') mappedStatus = AuditStatus.COMPLIANT;
         else if (result.status === 'DIVERGENT') mappedStatus = AuditStatus.DIVERGENT;
@@ -93,7 +90,6 @@ export const analyzeConstructionImage = async (base64Image: string): Promise<Aud
 
     } catch (error) {
         console.error("Erro na análise Gemini:", error);
-        // Fallback ZEROED (No fake data)
         return {
             id: crypto.randomUUID(),
             timestamp: new Date().toISOString(),
@@ -107,20 +103,17 @@ export const analyzeConstructionImage = async (base64Image: string): Promise<Aud
     }
 };
 
-export const analyzeMapBoQ = async (inputData: string, mimeType: string = 'image/jpeg'): Promise<MapAnalysisResult> => {
+export const analyzeMapBoQ = async (inputData: string, mimeType: string = 'image/jpeg', rates?: UnitRates): Promise<MapAnalysisResult> => {
     try {
         const model = 'gemini-2.5-flash';
 
-        // Preparar o conteúdo baseada se é KML (Texto) ou Imagem/PDF (Binário Base64)
         const parts = [];
         
         if (mimeType === 'application/vnd.google-earth.kml+xml' || mimeType === 'text/xml') {
-            // Tratamento para KML (Texto)
             parts.push({
                 text: `DADOS KML/XML DO PROJETO GOOGLE EARTH:\n\n${inputData}`
             });
         } else {
-            // Tratamento para Imagem/PDF (Base64)
             parts.push({
                 inlineData: {
                     mimeType: mimeType, 
@@ -130,7 +123,7 @@ export const analyzeMapBoQ = async (inputData: string, mimeType: string = 'image
         }
 
         parts.push({
-            text: "Realize a auditoria completa OSP. Conte Snowshoes, Âncoras, Risers e Coils. Calcule metragens. RECOMENDE O PONTO DE SPLICE IDEAL."
+            text: "Realize a auditoria completa OSP. Conte Snowshoes, Âncoras, Risers e Coils. Calcule metragens. Gere a lista de materiais para retirada no warehouse (Pick List). Calcule o custo de mão de obra usando as taxas fornecidas."
         });
 
         const response = await ai.models.generateContent({
@@ -139,7 +132,7 @@ export const analyzeMapBoQ = async (inputData: string, mimeType: string = 'image
                 parts: parts
             },
             config: {
-                systemInstruction: MAP_SYSTEM_INSTRUCTION,
+                systemInstruction: getMapSystemInstruction(rates),
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.OBJECT,
@@ -160,18 +153,30 @@ export const analyzeMapBoQ = async (inputData: string, mimeType: string = 'image
                         financials: {
                             type: Type.OBJECT,
                             properties: {
-                                estimatedLaborCost: { type: Type.NUMBER },
+                                estimatedLaborCost: { type: Type.NUMBER, description: "Soma: (Metragem * Taxa) + (Ativos * Taxa)" },
                                 estimatedMaterialCost: { type: Type.NUMBER },
-                                potentialSavings: { type: Type.NUMBER, description: "Valor potencial de economia detectado" }
+                                potentialSavings: { type: Type.NUMBER }
+                            }
+                        },
+                        materialList: {
+                            type: Type.ARRAY,
+                            description: "Lista exata de materiais para retirada no Warehouse",
+                            items: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    item: { type: Type.STRING },
+                                    quantity: { type: Type.NUMBER },
+                                    unit: { type: Type.STRING }
+                                }
                             }
                         },
                         detectedAnomalies: { type: Type.ARRAY, items: { type: Type.STRING } },
                         spliceRecommendation: {
                             type: Type.OBJECT,
                             properties: {
-                                location: { type: Type.STRING, description: "Local sugerido para a fusão (Poste ID ou referência)" },
-                                reason: { type: Type.STRING, description: "Motivo técnico da escolha" },
-                                action: { type: Type.STRING, description: "Ação sugerida" }
+                                location: { type: Type.STRING },
+                                reason: { type: Type.STRING },
+                                action: { type: Type.STRING }
                             }
                         }
                     }
@@ -184,7 +189,6 @@ export const analyzeMapBoQ = async (inputData: string, mimeType: string = 'image
 
     } catch (error) {
         console.error("Erro na análise de Mapa Gemini:", error);
-        // Fallback ZEROED (No fake data)
         return {
             totalCableLength: 0,
             cableType: "Desconhecido",
@@ -195,11 +199,141 @@ export const analyzeMapBoQ = async (inputData: string, mimeType: string = 'image
                 estimatedMaterialCost: 0,
                 potentialSavings: 0
             },
+            materialList: [],
             detectedAnomalies: [
                 "Falha no processamento do arquivo ou chave de API inválida.",
-                "Nenhum dado pôde ser extraído."
             ],
             spliceRecommendation: undefined
         };
     }
 }
+
+// --- NEW AI FEATURES ---
+
+// 1. IMAGE EDITING (gemini-2.5-flash-image)
+export const editImageWithGemini = async (base64Image: string, prompt: string): Promise<string | null> => {
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash-image',
+            contents: {
+                parts: [
+                    {
+                        inlineData: {
+                            mimeType: 'image/png', // Assuming PNG for edit output compatibility, input can be jpeg
+                            data: base64Image
+                        }
+                    },
+                    { text: prompt }
+                ]
+            }
+        });
+        
+        for (const part of response.candidates?.[0]?.content?.parts || []) {
+            if (part.inlineData) {
+                return `data:image/png;base64,${part.inlineData.data}`;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error("Error editing image:", error);
+        throw error;
+    }
+};
+
+// 2. VIDEO GENERATION (Veo)
+export const generateVideoWithVeo = async (base64Image: string, prompt: string, aspectRatio: '16:9' | '9:16' = '16:9'): Promise<string> => {
+    try {
+        // Veo requires its own paid key check in some environments
+        if ((window as any).aistudio && (window as any).aistudio.hasSelectedApiKey) {
+            const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+            if (!hasKey) {
+                throw new Error("VEO_KEY_REQUIRED");
+            }
+        }
+
+        // Create a new instance for Veo calls to ensure key freshness if selected via UI
+        const veoAi = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        
+        let operation = await veoAi.models.generateVideos({
+            model: 'veo-3.1-fast-generate-preview',
+            prompt: prompt,
+            image: {
+                imageBytes: base64Image,
+                mimeType: 'image/png', // Assuming standardized input
+            },
+            config: {
+                numberOfVideos: 1,
+                resolution: '720p',
+                aspectRatio: aspectRatio
+            }
+        });
+
+        // Polling
+        while (!operation.done) {
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            operation = await veoAi.operations.getVideosOperation({ operation: operation });
+        }
+
+        const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
+        if (!videoUri) throw new Error("No video URI returned");
+
+        // Fetch the actual video bytes
+        const videoResponse = await fetch(`${videoUri}&key=${process.env.API_KEY}`);
+        const blob = await videoResponse.blob();
+        return URL.createObjectURL(blob);
+
+    } catch (error) {
+        console.error("Veo Error:", error);
+        throw error;
+    }
+};
+
+// 3. AUDIO TRANSCRIPTION (gemini-2.5-flash)
+export const transcribeAudio = async (base64Audio: string, mimeType: string): Promise<string> => {
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: {
+                parts: [
+                    {
+                        inlineData: {
+                            mimeType: mimeType,
+                            data: base64Audio
+                        }
+                    },
+                    { text: "Transcribe this audio exactly as spoken." }
+                ]
+            }
+        });
+        return response.text || "";
+    } catch (error) {
+        console.error("Transcription error:", error);
+        return "Error transcribing audio.";
+    }
+};
+
+// 4. CHAT WITH TOOLS (Search, Maps, Thinking)
+export const createChatSession = (thinkingMode: boolean = false) => {
+    const model = thinkingMode ? 'gemini-3-pro-preview' : 'gemini-3-pro-preview'; // Request asks for 3-pro for chatbot
+    
+    const tools: any[] = [
+        { googleSearch: {} },
+        { googleMaps: {} }
+    ];
+
+    const config: any = {
+        tools: tools,
+        systemInstruction: "You are an expert Field Solutions AI assistant. Use Google Search to find up-to-date info and Google Maps for location data when asked. If the user asks for complex reasoning, use your thinking capabilities."
+    };
+
+    if (thinkingMode) {
+        // Must use gemini-3-pro-preview and specific thinking budget
+        config.thinkingConfig = { thinkingBudget: 32768 };
+        // config.maxOutputTokens should NOT be set when using thinkingConfig
+    }
+
+    return ai.chats.create({
+        model: model,
+        config: config
+    });
+};
