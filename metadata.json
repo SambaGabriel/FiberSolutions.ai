@@ -1,0 +1,8 @@
+{
+  "name": "Field Solutions AI",
+  "description": "Plataforma inteligente de supervisão, auditoria e gerenciamento para construção de fibra óptica utilizando IA Gemini.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
