@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { ViewState, Notification } from '../types';
-import { LayoutDashboard, Map as MapIcon, Menu, X, Bell, CheckCheck, AlertTriangle, Info, AlertCircle, ChevronRight, Calculator, HardHat, Building2, ArrowLeft, Zap, Bot } from 'lucide-react';
+import { ViewState, Notification, User } from '../types';
+import { LayoutDashboard, Map as MapIcon, Menu, X, Bell, CheckCheck, AlertTriangle, Info, AlertCircle, ChevronRight, Calculator, HardHat, Building2, ArrowLeft, Zap, Bot, User as UserIcon, LogOut, Settings, CheckCircle, MailCheck, Shield, CheckCircle2 } from 'lucide-react';
 import Logo from './Logo';
 
 interface LayoutProps {
@@ -10,12 +10,21 @@ interface LayoutProps {
     children: React.ReactNode;
     notifications: Notification[];
     onMarkAllRead: () => void;
+    user: User | null;
+    onLogout: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, notifications, onMarkAllRead }) => {
+const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, notifications, onMarkAllRead, user, onLogout }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    
+    // Profile Modal State
+    const [showProfileModal, setShowProfileModal] = useState(false);
+    const [modalTab, setModalTab] = useState<'account' | 'info'>('account');
+
     const notifRef = useRef<HTMLDivElement>(null);
+    const userMenuRef = useRef<HTMLDivElement>(null);
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -23,6 +32,9 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
         const handleClickOutside = (event: MouseEvent) => {
             if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
                 setIsNotifOpen(false);
+            }
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+                setIsUserMenuOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -146,6 +158,137 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
         </div>
     );
 
+    const UserMenu = () => (
+        <div className="absolute right-0 mt-4 w-72 glass-panel rounded-2xl shadow-2xl z-50 overflow-hidden transform transition-all animate-in fade-in slide-in-from-top-2 border border-white/10">
+            {/* Header with User Info */}
+            <div className="p-5 border-b border-white/5 bg-[#0a0f1e] relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-5">
+                    <UserIcon className="w-20 h-20 text-white" />
+                </div>
+                <div className="flex items-center gap-3 relative z-10">
+                    <div className="w-10 h-10 rounded-full bg-fs-brand/20 border border-fs-brand/30 flex items-center justify-center text-fs-brand font-bold text-lg">
+                        {user?.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <p className="text-white font-bold text-sm truncate max-w-[160px]">{user?.name}</p>
+                        <p className="text-slate-500 text-xs truncate max-w-[160px]">{user?.email}</p>
+                    </div>
+                </div>
+                {/* Email Verification Badge */}
+                <div className="mt-3 flex items-center gap-2 text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded w-fit border border-emerald-500/20 font-bold uppercase tracking-wide">
+                    <MailCheck className="w-3 h-3" /> Email Confirmado
+                </div>
+            </div>
+
+            {/* Menu Items */}
+            <div className="p-2 bg-[#02040a]">
+                <button 
+                    onClick={() => {
+                        setModalTab('account');
+                        setShowProfileModal(true);
+                        setIsUserMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium text-left"
+                >
+                    <UserIcon className="w-4 h-4" /> Minha Conta
+                </button>
+                <button 
+                    onClick={() => {
+                        setModalTab('info');
+                        setShowProfileModal(true);
+                        setIsUserMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium text-left"
+                >
+                    <Info className="w-4 h-4" /> Informações do Sistema
+                </button>
+                
+                <div className="h-px bg-white/5 my-1" />
+                
+                <button 
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors text-sm font-medium text-left"
+                >
+                    <LogOut className="w-4 h-4" /> Sair
+                </button>
+            </div>
+        </div>
+    );
+
+    const ProfileModal = () => (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-[#0b1121] border border-white/10 w-full max-w-lg rounded-3xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-300">
+                
+                <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#0a0f1e]">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        {modalTab === 'account' ? <UserIcon className="w-5 h-5 text-fs-brand" /> : <Info className="w-5 h-5 text-fs-brand" />}
+                        {modalTab === 'account' ? 'Minha Conta' : 'Sobre o Sistema'}
+                    </h3>
+                    <button onClick={() => setShowProfileModal(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                <div className="p-6">
+                    {modalTab === 'account' ? (
+                        <div className="space-y-6">
+                            <div className="flex flex-col items-center mb-6">
+                                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-fs-brand to-orange-600 p-1 mb-4 shadow-glow">
+                                    <div className="w-full h-full rounded-full bg-[#02040a] flex items-center justify-center">
+                                        <span className="text-4xl font-bold text-white">{user?.name.charAt(0).toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <h4 className="text-xl font-bold text-white">{user?.name}</h4>
+                                <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-slate-300 mt-2 uppercase tracking-wide">
+                                    {user?.role}
+                                </span>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="bg-[#02040a] p-4 rounded-xl border border-white/5 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-slate-500 font-bold uppercase">Email Corporativo</p>
+                                        <p className="text-white font-medium">{user?.email}</p>
+                                    </div>
+                                    <CheckCircle className="w-5 h-5 text-emerald-500" />
+                                </div>
+                                <div className="bg-[#02040a] p-4 rounded-xl border border-white/5 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-xs text-slate-500 font-bold uppercase">Status da Conta</p>
+                                        <p className="text-emerald-400 font-bold">Ativo / Verificado</p>
+                                    </div>
+                                    <Shield className="w-5 h-5 text-emerald-500" />
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-6 text-center">
+                            <div className="bg-slate-900/50 p-6 rounded-2xl border border-white/5 mb-6">
+                                <Logo className="w-16 h-16 mx-auto mb-4" showText={false} />
+                                <h4 className="text-2xl font-black text-white tracking-tighter">FIBER<span className="text-fs-brand">SOLUTIONS.ai</span></h4>
+                                <p className="text-slate-500 text-sm mt-2">Versão 2.4.0 (Build 2024)</p>
+                            </div>
+                            
+                            <div className="text-left space-y-4">
+                                <h5 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">Módulos Ativos</h5>
+                                <ul className="space-y-2 text-sm text-slate-300">
+                                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Gemini 3.0 Pro Vision (Audit)</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Google Maps Geospatial (BoQ)</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Veo Video Generation</li>
+                                    <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Instant Payments Gateway</li>
+                                </ul>
+                            </div>
+                            
+                            <p className="text-xs text-slate-600 mt-8">
+                                © 2024 Fiber Solutions Inc. Todos os direitos reservados.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+
     return (
         <div className="min-h-screen flex font-sans text-slate-200 selection:bg-fs-brand/30 selection:text-white bg-fs-bg">
             {/* Desktop Sidebar */}
@@ -167,7 +310,7 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
                     )}
                     
                    <Logo className="w-8 h-8" showText={false} />
-                   <span className="font-extrabold text-lg tracking-tight text-white">FIBER<span className="text-fs-brand">SOLUTIONS</span></span>
+                   <span className="font-extrabold text-lg tracking-tight text-white">FIBER<span className="text-fs-brand">SOLUTIONS.ai</span></span>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="relative" ref={notifRef}>
@@ -196,6 +339,15 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
                         onClick={e => e.stopPropagation()}
                     >
                         <NavContent />
+                        {/* Mobile Logout Button in Menu */}
+                        <div className="absolute bottom-4 left-0 w-full px-6">
+                            <button 
+                                onClick={onLogout}
+                                className="w-full py-3 bg-rose-500/10 text-rose-400 font-bold rounded-xl border border-rose-500/20 flex items-center justify-center gap-2"
+                            >
+                                <LogOut className="w-4 h-4" /> Sair
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -224,10 +376,19 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
                         )}
                     </div>
                     <div className="relative flex items-center gap-4">
-                        <div className="hidden md:flex flex-col items-end mr-2">
-                             <span className="text-xs font-bold text-white">Supervisão Central</span>
-                             <span className="text-[10px] text-fs-brand uppercase font-bold tracking-widest">Administrator</span>
+                        
+                        {/* USER DROPDOWN TRIGGER */}
+                        <div className="relative" ref={userMenuRef}>
+                            <button 
+                                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                                className="hidden md:flex flex-col items-end mr-2 hover:bg-white/5 px-3 py-1 rounded-lg transition-colors group cursor-pointer border border-transparent hover:border-white/5"
+                            >
+                                <span className="text-xs font-bold text-white group-hover:text-fs-brand transition-colors">{user?.name}</span>
+                                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">{user?.role}</span>
+                            </button>
+                            {isUserMenuOpen && <UserMenu />}
                         </div>
+
                         <button 
                             onClick={() => setIsNotifOpen(!isNotifOpen)}
                             className={`p-3 rounded-xl border border-white/10 transition-all duration-300 relative group
@@ -245,6 +406,9 @@ const Layout: React.FC<LayoutProps> = ({ currentView, onChangeView, children, no
                  </div>
 
                 {children}
+
+                {/* Render Profile Modal */}
+                {showProfileModal && <ProfileModal />}
             </main>
         </div>
     );

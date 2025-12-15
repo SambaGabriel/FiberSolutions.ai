@@ -104,7 +104,14 @@ const MapAudit: React.FC<MapAuditProps> = ({ rates }) => {
                                 )}
                                 {fileType === 'kml' && (
                                     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 to-slate-900 p-4 relative overflow-hidden">
-                                        <div className="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Earth_Western_Hemisphere_transparent_background.png/1200px-Earth_Western_Hemisphere_transparent_background.png')] bg-cover bg-center animate-spin-slow" style={{animationDuration: '60s'}}></div>
+                                        {/* Brand Image: Digital Network/Map Abstract */}
+                                        <div 
+                                            className="absolute inset-0 opacity-30 bg-cover bg-center animate-spin" 
+                                            style={{ 
+                                                backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')",
+                                                animationDuration: '120s'
+                                            }}
+                                        ></div>
                                         <Globe className="w-24 h-24 text-blue-400 mb-4 relative z-10" />
                                         <p className="text-white font-medium text-center break-all px-4 relative z-10">{fileName}</p>
                                         <p className="text-xs text-blue-300 mt-2 uppercase font-bold relative z-10 flex items-center gap-1">

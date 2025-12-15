@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { User, Lock, Mail, ArrowRight, ShieldCheck, HardHat, Briefcase, Glasses, CheckCircle2 } from 'lucide-react';
+import { User, Lock, Mail, ArrowRight, ShieldCheck, HardHat, Briefcase, Glasses, CheckCircle2, TrendingUp, Wallet, Ruler } from 'lucide-react';
 import Logo from './Logo';
 import FiberLoader from './FiberLoader';
 
@@ -30,7 +31,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
             setTimeout(() => {
                 setIsEmailSent(true);
                 setIsLoading(false);
-            }, 2500); // Aumentei um pouco para dar tempo de ver a animação legal
+            }, 2500);
             return;
         }
 
@@ -44,7 +45,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
     if (isEmailSent && mode === 'REGISTER') {
         return (
             <div className="min-h-screen bg-[#02040a] flex items-center justify-center p-4 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-10"></div>
+                <div 
+                    className="absolute inset-0 bg-cover bg-center opacity-10"
+                    style={{ backgroundImage: "url('https://images.unsplash.com/photo-1544197150-b99a580bbcbf?q=80&w=2071&auto=format&fit=crop')" }}
+                ></div>
                 <div className="w-full max-w-md bg-[#0b1121] border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10 text-center animate-in zoom-in-95 duration-500">
                     <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-500/20">
                         <Mail className="w-10 h-10 text-emerald-500" />
@@ -71,58 +75,94 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
     }
 
     return (
-        <div className="min-h-screen bg-[#02040a] flex items-center justify-center p-4 relative overflow-hidden">
-            {/* Background Atmosphere */}
-            <div className="absolute inset-0 bg-radial-gradient from-[#1a1f2e] to-[#02040a]"></div>
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-fs-brand/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+            {/* FULL PAGE BACKGROUND IMAGE */}
+            <div 
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: "url('https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=2069&auto=format&fit=crop')" }}
+            >
+                {/* Heavy Dark Overlay for Readability */}
+                <div className="absolute inset-0 bg-[#02040a]/85 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#02040a] via-[#02040a]/90 to-transparent"></div>
+            </div>
             
-            <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-[#0b1121]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden relative z-10 min-h-[600px]">
+            <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 bg-[#0b1121]/60 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden relative z-10 min-h-[650px]">
                 
-                {/* Left Side - Visual (Desktop Only) */}
-                <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-[#0f172a] to-[#02040a] relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
+                {/* Left Side - Value Proposition (Desktop Only) */}
+                <div className="hidden lg:flex flex-col justify-between p-12 relative overflow-hidden">
                     
-                    <div className="relative z-10">
-                        {/* WRAPPER DIV for Spacing */}
-                        <div className="mb-8">
-                            <Logo className="w-20 h-20" showText={true} />
+                    {/* Header Branding - Balanced Proportion */}
+                    <div className="relative z-10 flex items-center gap-4">
+                        <div className="bg-white/5 p-2 rounded-xl border border-white/10">
+                            <Logo className="w-10 h-10" showText={false} />
                         </div>
-                        
-                        <h2 className="text-3xl font-extrabold text-white tracking-tight leading-tight mb-4">
-                            Inteligência Artificial para <br/>
-                            <span className="text-fs-brand">Redes de Fibra Óptica</span>
+                        <div>
+                            <h1 className="text-2xl font-black text-white tracking-tighter leading-none font-sans">
+                                FIBER<span className="text-fs-brand">SOLUTIONS.ai</span>
+                            </h1>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Management System</p>
+                        </div>
+                    </div>
+                    
+                    {/* Main Copy */}
+                    <div className="relative z-10 mt-8">
+                        <h2 className="text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
+                            Gestão Integrada para <br/>
+                            <span className="text-fs-brand">Construção de Redes</span>
                         </h2>
-                        <p className="text-slate-400 text-lg max-w-sm">
-                            Supervisão, auditoria e pagamentos automatizados para operações FTTH de alta performance.
+                        <p className="text-slate-400 text-sm font-medium max-w-sm leading-relaxed">
+                            A plataforma definitiva para Empresas e Linemans. Centralize projetos, controle custos, automatize auditorias e pagamentos.
                         </p>
                     </div>
 
-                    <div className="relative z-10 space-y-4">
-                        <div className="flex items-center gap-4 text-sm text-slate-300">
-                            <div className="p-2 bg-white/5 rounded-lg"><ShieldCheck className="w-5 h-5 text-emerald-400" /></div>
-                            <span>Auditoria IA com 98% de precisão</span>
+                    {/* Features Grid */}
+                    <div className="relative z-10 grid grid-cols-2 gap-6 mt-12">
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 text-white font-bold text-sm">
+                                <div className="p-1.5 bg-blue-500/20 rounded text-blue-400"><Briefcase className="w-4 h-4" /></div>
+                                Gestão de Projetos
+                            </div>
+                            <p className="text-xs text-slate-400">Organize rotas e materiais (BoQ).</p>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-slate-300">
-                            <div className="p-2 bg-white/5 rounded-lg"><Briefcase className="w-5 h-5 text-blue-400" /></div>
-                            <span>Pagamentos Automatizados & BoQ</span>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 text-white font-bold text-sm">
+                                <div className="p-1.5 bg-emerald-500/20 rounded text-emerald-400"><Wallet className="w-4 h-4" /></div>
+                                Controle Financeiro
+                            </div>
+                            <p className="text-xs text-slate-400">Invoices e pagamentos transparentes.</p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 text-white font-bold text-sm">
+                                <div className="p-1.5 bg-fs-brand/20 rounded text-fs-brand"><ShieldCheck className="w-4 h-4" /></div>
+                                Auditoria de Qualidade
+                            </div>
+                            <p className="text-xs text-slate-400">Validação técnica automatizada.</p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 text-white font-bold text-sm">
+                                <div className="p-1.5 bg-purple-500/20 rounded text-purple-400"><HardHat className="w-4 h-4" /></div>
+                                Portal do Lineman
+                            </div>
+                            <p className="text-xs text-slate-400">Facilidade para quem está em campo.</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Side - Form */}
-                <div className="p-8 lg:p-12 flex flex-col justify-center relative z-20">
+                <div className="p-8 lg:p-12 flex flex-col justify-center bg-[#02040a]/80 border-l border-white/5 relative z-20">
                     
-                    {/* MOBILE LOGO (Visible only on small screens) */}
-                    <div className="lg:hidden flex justify-center mb-8">
-                        <Logo className="w-12 h-12" showText={true} />
+                    {/* MOBILE LOGO */}
+                    <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
+                         <Logo className="w-10 h-10" showText={false} />
+                         <span className="text-xl font-black text-white tracking-tighter">FIBER<span className="text-fs-brand">SOLUTIONS.ai</span></span>
                     </div>
 
-                    <div className="mb-8 text-center lg:text-left">
-                        <h2 className="text-3xl font-bold text-white mb-2">
-                            {mode === 'LOGIN' ? 'Acesse sua Conta' : 'Crie sua conta'}
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-white mb-2">
+                            {mode === 'LOGIN' ? 'Acesse sua Conta' : 'Comece Agora'}
                         </h2>
                         <p className="text-slate-500">
-                            {mode === 'LOGIN' ? 'Insira suas credenciais para continuar.' : 'Comece a otimizar suas rotas hoje mesmo.'}
+                            {mode === 'LOGIN' ? 'Gerencie suas operações de fibra com eficiência.' : 'Junte-se à plataforma líder em OSP.'}
                         </p>
                     </div>
 
@@ -136,7 +176,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                                         type="text" 
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-fs-brand outline-none transition-colors"
+                                        className="w-full bg-[#0b1121] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-fs-brand outline-none transition-colors"
                                         placeholder="Seu nome"
                                         required
                                     />
@@ -152,7 +192,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                                     type="email" 
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-fs-brand outline-none transition-colors"
+                                    className="w-full bg-[#0b1121] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-fs-brand outline-none transition-colors"
                                     placeholder="ex: nome@empresa.com"
                                     required
                                 />
@@ -167,7 +207,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                                     type="password" 
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-[#02040a] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-fs-brand outline-none transition-colors"
+                                    className="w-full bg-[#0b1121] border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white focus:border-fs-brand outline-none transition-colors"
                                     placeholder="••••••••"
                                     required
                                 />
@@ -176,20 +216,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
 
                         {mode === 'REGISTER' && (
                              <div className="space-y-2 animate-in fade-in slide-in-from-top-4">
-                                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Perfil de Acesso</label>
+                                <label className="text-xs font-bold text-slate-400 uppercase ml-1">Selecione seu Perfil</label>
                                 <div className="grid grid-cols-3 gap-3">
                                     <button 
                                         type="button"
                                         onClick={() => setRole('OWNER')}
-                                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${role === 'OWNER' ? 'bg-fs-brand/20 border-fs-brand text-white' : 'bg-[#02040a] border-white/10 text-slate-500 hover:border-white/20'}`}
+                                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${role === 'OWNER' ? 'bg-fs-brand/20 border-fs-brand text-white' : 'bg-[#0b1121] border-white/10 text-slate-500 hover:border-white/20'}`}
                                     >
                                         <Briefcase className="w-5 h-5" />
-                                        <span className="text-[10px] font-bold uppercase">Proprietário</span>
+                                        <span className="text-[10px] font-bold uppercase">Dono/Admin</span>
                                     </button>
                                     <button 
                                         type="button"
                                         onClick={() => setRole('SUPERVISOR')}
-                                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${role === 'SUPERVISOR' ? 'bg-fs-brand/20 border-fs-brand text-white' : 'bg-[#02040a] border-white/10 text-slate-500 hover:border-white/20'}`}
+                                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${role === 'SUPERVISOR' ? 'bg-fs-brand/20 border-fs-brand text-white' : 'bg-[#0b1121] border-white/10 text-slate-500 hover:border-white/20'}`}
                                     >
                                         <Glasses className="w-5 h-5" />
                                         <span className="text-[10px] font-bold uppercase">Supervisor</span>
@@ -197,7 +237,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
                                     <button 
                                         type="button"
                                         onClick={() => setRole('LINEMAN')}
-                                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${role === 'LINEMAN' ? 'bg-fs-brand/20 border-fs-brand text-white' : 'bg-[#02040a] border-white/10 text-slate-500 hover:border-white/20'}`}
+                                        className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${role === 'LINEMAN' ? 'bg-fs-brand/20 border-fs-brand text-white' : 'bg-[#0b1121] border-white/10 text-slate-500 hover:border-white/20'}`}
                                     >
                                         <HardHat className="w-5 h-5" />
                                         <span className="text-[10px] font-bold uppercase">Lineman</span>
@@ -226,12 +266,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ onLogin }) => {
 
                     <div className="mt-8 text-center">
                         <p className="text-slate-500 text-sm">
-                            {mode === 'LOGIN' ? 'Ainda não tem conta?' : 'Já possui cadastro?'}
+                            {mode === 'LOGIN' ? 'Novo na plataforma?' : 'Já possui conta?'}
                             <button 
                                 onClick={() => setMode(mode === 'LOGIN' ? 'REGISTER' : 'LOGIN')}
                                 className="ml-2 text-fs-brand font-bold hover:underline"
                             >
-                                {mode === 'LOGIN' ? 'Cadastre-se' : 'Fazer Login'}
+                                {mode === 'LOGIN' ? 'Criar Cadastro' : 'Fazer Login'}
                             </button>
                         </p>
                     </div>

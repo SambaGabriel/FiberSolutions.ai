@@ -153,6 +153,11 @@ const App: React.FC = () => {
         addNotification("Login Realizado", `Bem-vindo, ${userData.name}. Painel ${userData.role} ativo.`, "success");
     };
 
+    const handleLogout = () => {
+        setUser(null);
+        setCurrentView(ViewState.DASHBOARD);
+    };
+
     // --- RENDER ---
 
     if (!user) {
@@ -213,6 +218,8 @@ const App: React.FC = () => {
             onChangeView={setCurrentView}
             notifications={notifications}
             onMarkAllRead={markAllAsRead}
+            user={user}
+            onLogout={handleLogout}
         >
             {renderContent()}
         </Layout>
